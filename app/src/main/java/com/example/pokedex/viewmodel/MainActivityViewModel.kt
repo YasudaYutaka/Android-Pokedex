@@ -14,16 +14,16 @@ class MainActivityViewModel : ViewModel() {
 
     // Retorna o id selecionado
     fun onSelectMenuItem(id : Int) : Boolean {
-        when(id) {
+        return when(id) {
             R.id.menu_item_pokedex -> {
                 mutablePokedex.postValue(true)
-                return true
+                true
             }
             R.id.menu_item_favorites -> {
                 mutableFavorites.postValue(true)
-                return true
+                true
             }
-            else -> return false
+            else -> false
         }
     }
 
