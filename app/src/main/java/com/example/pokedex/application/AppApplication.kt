@@ -1,7 +1,10 @@
 package com.example.pokedex.application
 
 import android.app.Application
+import com.example.pokedex.repository.PokemonListRepository
+import com.example.pokedex.retrofit.RetrofitInstance
 import com.example.pokedex.viewmodel.MainActivityViewModel
+import com.example.pokedex.viewmodel.PokemonListViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
@@ -13,7 +16,10 @@ class AppApplication : Application() {
         super.onCreate()
 
         val myModules = module {
+            single { RetrofitInstance.createService() }
+            factory { PokemonListRepository(get()) }
             viewModel { MainActivityViewModel() }
+            viewModel { PokemonListViewModel(get()) }
         }
 
         startKoin {
