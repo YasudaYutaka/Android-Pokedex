@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokedex.model.Pokemon
+import com.example.pokedex.model.PokemonByIdResponse
 import com.example.pokedex.repository.PokemonListRepository
 import kotlinx.coroutines.launch
 import java.lang.Exception
@@ -41,5 +42,17 @@ class PokemonListViewModel(private val repository: PokemonListRepository) : View
             }
         }
     }
+
+    suspend fun onGetPokemonById(id : Int) : PokemonByIdResponse? {
+        return try {
+            val response = repository.getPokemonById(id)
+            response
+        } catch (e : Exception) {
+            println(e.message)
+            null
+        }
+    }
+
+
 
 }

@@ -8,6 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.pokedex.R
 import com.example.pokedex.model.Pokemon
 import com.example.pokedex.viewmodel.PokemonListViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class PokemonListAdapter(private val viewModel : PokemonListViewModel) : RecyclerView.Adapter<PokemonListAdapter.ViewHolder>() {
 
@@ -26,9 +29,15 @@ class PokemonListAdapter(private val viewModel : PokemonListViewModel) : Recycle
 
     inner class ViewHolder(view : View) : RecyclerView.ViewHolder(view) {
         private val tvPokemonName : TextView by lazy { itemView.findViewById(R.id.tvPokemonName) }
+        private val tvType : TextView by lazy { itemView.findViewById(R.id.tvType) }
 
         fun bind(pokemon: Pokemon) {
             tvPokemonName.text = pokemon.name
+            GlobalScope.launch(Dispatchers.Main) {
+                val pokemonID = "/[0-9]+".toRegex().find(pokemon.url)?.value?.split("/")?.get(1)?.toInt()
+                val response = viewModel.onGetPokemonById(pokemonID ?: 1);
+                response?.let { tvType.text = response.types[0].toString() }
+            }
         }
     }
 
