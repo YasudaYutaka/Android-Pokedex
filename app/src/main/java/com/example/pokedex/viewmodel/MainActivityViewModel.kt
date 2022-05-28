@@ -3,27 +3,54 @@ package com.example.pokedex.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.pokedex.R
+import com.example.pokedex.model.Pokemon
+import com.example.pokedex.model.PokemonByIdResponse
+import com.example.pokedex.repository.PokemonListRepository
+import kotlinx.coroutines.launch
+import java.lang.Exception
 
-class MainActivityViewModel : ViewModel() {
+class MainActivityViewModel(private val repository: PokemonListRepository) : ViewModel() {
 
-    private val mutablePokedex : MutableLiveData<Boolean> = MutableLiveData()
-    val pokedex : LiveData<Boolean> get() = mutablePokedex
-    private val mutableFavorites : MutableLiveData<Boolean> = MutableLiveData()
-    val favorites : LiveData<Boolean> get() = mutableFavorites
+    private val mutableSuccessState = MutableLiveData<Boolean>()
+    val successState : LiveData<Boolean> get() =  mutableSuccessState;
+    private val mutableErrorState = MutableLiveData<Boolean>()
+    val errorState : LiveData<Boolean> get() = mutableErrorState
 
-    // Retorna o id selecionado
-    fun onSelectMenuItem(id : Int) : Boolean {
-        return when(id) {
-            R.id.menu_item_pokedex -> {
-                mutablePokedex.postValue(true)
-                true
+    private val mutablePokemonList = MutableLiveData<MutableList<Pokemon>>()
+    val pokemonList : LiveData<MutableList<Pokemon>> get() = mutablePokemonList
+
+    val pokemonListSize : Int get() = pokemonList.value!!.size
+
+    fun getPokemonByPosition(position : Int) : Pokemon {
+        return pokemonList.value!![position]
+    }
+
+    fun onGetPokemonList(limit : Int, offset : Int) {
+        viewModelScope.launch {
+            try {
+                val response = repository.getPokemonList(limit, offset)
+                if (response?.results?.size != null) {
+                    mutablePokemonList.postValue(response.results)
+                    mutableSuccessState.postValue(true)
+                } else {
+                    mutableErrorState.postValue(true)
+                }
+            } catch (e : Exception) {
+                println(e.message)
+                mutableErrorState.postValue(true)
             }
-            R.id.menu_item_favorites -> {
-                mutableFavorites.postValue(true)
-                true
-            }
-            else -> false
+        }
+    }
+
+    suspend fun onGetPokemonById(id : Int) : PokemonByIdResponse? {
+        return try {
+            val response = repository.getPokemonById(id)
+            response
+        } catch (e: Exception) {
+            println(e.message)
+            null
         }
     }
 

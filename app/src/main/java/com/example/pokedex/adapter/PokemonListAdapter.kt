@@ -7,12 +7,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pokedex.R
 import com.example.pokedex.model.Pokemon
-import com.example.pokedex.viewmodel.PokemonListViewModel
+import com.example.pokedex.viewmodel.MainActivityViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class PokemonListAdapter(private val viewModel : PokemonListViewModel) : RecyclerView.Adapter<PokemonListAdapter.ViewHolder>() {
+class PokemonListAdapter(private val viewModel : MainActivityViewModel) : RecyclerView.Adapter<PokemonListAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
