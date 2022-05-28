@@ -1,5 +1,6 @@
 package com.example.pokedex.viewmodel
 
+import android.graphics.drawable.Drawable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -51,6 +52,30 @@ class MainActivityViewModel(private val repository: PokemonListRepository) : Vie
         } catch (e: Exception) {
             println(e.message)
             null
+        }
+    }
+
+    fun onGetBackgroundColorByType(firstType: String): Int {
+        return when(firstType) {
+            "bug" -> R.color.background_bug
+            "dark" -> R.color.background_dark
+            "dragon" -> R.color.background_dragon
+            "electric" -> R.color.background_electric
+            "fairy" -> R.color.background_fairy
+            "fighting" -> R.color.background_fighting
+            "fire" -> R.color.background_fire
+            "flying" -> R.color.background_flying
+            "ghost" -> R.color.background_ghost
+            "grass" -> R.color.background_grass
+            "ground" -> R.color.background_ground
+            "ice" -> R.color.background_ice
+            "normal" -> R.color.background_normal
+            "poison" -> R.color.background_poison
+            "psychic" -> R.color.background_psychic
+            "rock" -> R.color.background_rock
+            "steel" -> R.color.background_steel
+            "water" -> R.color.background_water
+            else -> R.color.background_water
         }
     }
 
