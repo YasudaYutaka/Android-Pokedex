@@ -18,14 +18,29 @@ class MainActivityViewModel(private val repository: PokemonListRepository) : Vie
     val successState : LiveData<Boolean> get() =  mutableSuccessState;
     private val mutableErrorState = MutableLiveData<Boolean>()
     val errorState : LiveData<Boolean> get() = mutableErrorState
+    private val mutableScrollSuccessState = MutableLiveData<Boolean>()
+    val scrollSuccessState : LiveData<Boolean> get() =  mutableScrollSuccessState;
+    private val mutableScrollErrorState = MutableLiveData<Boolean>()
+    val scrollErrorState : LiveData<Boolean> get() = mutableScrollErrorState
+
+    private val mutableOffset = MutableLiveData<Int>()
+    val offset : LiveData<Int> get() = mutableOffset
 
     private val mutablePokemonList = MutableLiveData<MutableList<Pokemon>>()
     val pokemonList : LiveData<MutableList<Pokemon>> get() = mutablePokemonList
+
+    var newPokemonList : MutableList<Pokemon> = mutableListOf()
 
     val pokemonListSize : Int get() = pokemonList.value!!.size
 
     fun getPokemonByPosition(position : Int) : Pokemon {
         return pokemonList.value!![position]
+    }
+
+    fun addPokemonToList(pokemonList: MutableList<Pokemon>) {
+        val list = mutablePokemonList.value
+        list?.addAll(pokemonList)
+        mutablePokemonList.postValue(list)
     }
 
     fun onGetPokemonList(limit : Int, offset : Int) {
@@ -35,6 +50,7 @@ class MainActivityViewModel(private val repository: PokemonListRepository) : Vie
                 if (response?.results?.size != null) {
                     mutablePokemonList.postValue(response.results)
                     mutableSuccessState.postValue(true)
+                    response.next?.let { mutableOffset.postValue(getNextOffset(it)) }
                 } else {
                     mutableErrorState.postValue(true)
                 }
@@ -77,6 +93,34 @@ class MainActivityViewModel(private val repository: PokemonListRepository) : Vie
             "water" -> R.color.background_water
             else -> R.color.background_water
         }
+    }
+
+    fun onGetPokemonListByScroll(limit : Int, offset : Int) {
+        viewModelScope.launch {
+            try {
+                val response = repository.getPokemonList(limit, offset)
+                if (response?.results?.size != null) {
+                    newPokemonList = response.results
+                    mutableScrollSuccessState.postValue(true)
+                    response.next?.let { mutableOffset.postValue(getNextOffset(it)) }
+                } else {
+                    mutableScrollErrorState.postValue(true)
+                }
+            } catch (e : Exception) {
+                println(e.message)
+                mutableScrollErrorState.postValue(true)
+            }
+        }
+    }
+
+    fun onScrollingVertically(cannotScroll: Boolean, isVisible : Boolean, offset: Int, onScroll: ((Int) -> Unit)) {
+        if(cannotScroll && !isVisible) {
+            onScroll(offset)
+        }
+    }
+
+    private fun getNextOffset(url : String) : Int? {
+        return "[^offset=]*[0-9]+\\w+".toRegex().find(url)?.value?.toInt()
     }
 
 }
